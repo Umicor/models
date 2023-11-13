@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import User
+from .models import User,Issue
 from django.views.decorators.http import require_POST
 import json
 
