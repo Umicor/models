@@ -1,0 +1,12 @@
+Django~=4.2
+requests~=2.31
+pydantic~=2.4
+djangorestframework~=3.14
+black~=23.7
+django-stubs~=1.2
+grequests
+ipdb
+isort~=5.12
+mypy~=1.5
+pympler~=1.0
+ruff~=0.0.291
