@@ -1,104 +1,62 @@
-from django.shortcuts import render
 from django.http import JsonResponse
-from .models import User,Issue
-from django.views.decorators.http import require_POST
-import json
+from django.views.decorators.csrf import csrf_exempt
+from .models import User, Issue
+from django.core import serializers
 
-def get_all_users(request):
-    users = User.objects.all()
-    user_list = [
-        {
-            'user1name': user.first_name,
-            'user2name': user.last_name,
-            'email': user.email,
-            'id': user.role_id
-         }
-        for user in users
-    ]
-    return JsonResponse({'users': user_list})
-
-
+@csrf_exempt
 def create_user(request):
-    try:
-        # Предполагается, что тело запроса содержит данные в формате JSON
-        data = json.loads(request.body.decode('utf-8'))
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        role_id = request.POST.get('role_id')
 
-        # Ваша логика создания экземпляра пользователя в базе данных
-        # Например, предположим, что у вас есть модель User
-        from .models import User
         new_user = User.objects.create(
-            username=data['username'],
-            email=data['email'],
-            # Добавьте другие поля по мере необходимости
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            role_id=role_id
         )
 
-        # Возвращаем созданный экземпляр в формате JSON
-        return JsonResponse({
-            'id': new_user.id,
-            'username': new_user.username,
-            'email': new_user.email,
-            # Добавьте другие поля по мере необходимости
-        })
+        return JsonResponse({'message': 'User created successfully'})
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Неверный формат JSON в теле запроса'}, status=400)
+def get_users(request):
+    if request.method == 'GET':
+        users = User.objects.all()
+        user_data = serializers.serialize('json', users)
+        return JsonResponse(user_data, safe=False)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    except KeyError as e:
-        return JsonResponse({'error': f'Отсутствует обязательное поле: {e}'}, status=400)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
+@csrf_exempt
 def create_issue(request):
-    try:
-        # Предполагается, что тело запроса содержит данные в формате JSON
-        data = json.loads(request.body.decode('utf-8'))
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        body = request.POST.get('body')
+        timestamp = request.POST.get('timestamp')
+        senior_id = request.POST.get('senior_id')
+        junior_id = request.POST.get('junior_id')
+        status = request.POST.get('status')
 
-        # Ваша логика создания экземпляра проблемы в базе данных
-        # Например, предположим, что у вас есть модель Issue
-        from .models import Issue
         new_issue = Issue.objects.create(
-            title=data['title'],
-            description=data['description'],
-            # Добавьте другие поля по мере необходимости
+            title=title,
+            body=body,
+            timestamp=timestamp,
+            senior_id=senior_id,
+            junior_id=junior_id,
+            status=status
         )
 
-        # Возвращаем созданный экземпляр в формате JSON
-        return JsonResponse({
-            'id': new_issue.id,
-            'title': new_issue.title,
-            'description': new_issue.description,
-            # Добавьте другие поля по мере необходимости
-        })
+        return JsonResponse({'message': 'Issue created successfully'})
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Неверный формат JSON в теле запроса'}, status=400)
-
-    except KeyError as e:
-        return JsonResponse({'error': f'Отсутствует обязательное поле: {e}'}, status=400)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-def get_all_issues(request):
-        try:
-            # Получаем все экземпляры проблемы из базы данных
-            issues = Issue.objects.all()
-
-            # Преобразуем результат в список словарей
-            issues_list = [
-                {
-                    'id': issue.id,
-                    'title': issue.title,
-                    'description': issue.description,
-                    # Добавьте другие поля по мере необходимости
-                }
-                for issue in issues
-            ]
-
-            # Возвращаем список проблем в формате JSON
-            return JsonResponse({'issues': issues_list})
-
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+def get_issues(request):
+    if request.method == 'GET':
+        issues = Issue.objects.all()
+        issue_data = serializers.serialize('json', issues)
+        return JsonResponse(issue_data, safe=False)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
