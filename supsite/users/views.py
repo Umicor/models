@@ -60,3 +60,15 @@ def get_issues(request):
         return JsonResponse(issue_data, safe=False)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def get_issue(request, issue_id):
+    if request.method == 'GET':
+        try:
+            issue = Issue.objects.get(pk=issue_id)
+            issue_data = serializers.serialize('json', [issue])
+            return JsonResponse(issue_data, safe=False)
+        except Issue.DoesNotExist:
+            return JsonResponse({'error': 'Issue not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
