@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_user, get_users,create_issue, get_issues
+from .views import create_user, get_users, create_issue, get_issues
 
 urlpatterns = [
     path('users/create/', create_user, name='create-user'),
