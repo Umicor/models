@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 # Create your models here.
@@ -6,7 +7,10 @@ class User(models.Model):
     email = models.CharField(max_length=20)
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    role_id = models.IntegerField(default=1)
+    role_id = models.IntegerField(default=1, validators=[
+        MinValueValidator(1),  # Минимальное допустимое значение
+        MaxValueValidator(2)  # Максимальное допустимое значение
+    ])
 
 
 

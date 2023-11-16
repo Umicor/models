@@ -2,6 +2,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User, Issue
 from django.core import serializers
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import UserSerializer  # Подключите ваш сериализатор пользователя
+from rest_framework import status  # Добавлен импорт status
+
 
 @csrf_exempt
 def create_user(request):
@@ -72,3 +77,10 @@ def get_issue(request, issue_id):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+@api_view(['POST'])
+def register_user(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
