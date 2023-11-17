@@ -13,7 +13,6 @@ class User(models.Model):
     ])
 
 
-
 class Issue(models.Model):
     title = models.CharField(max_length=20)
     body = models.CharField(max_length=250)

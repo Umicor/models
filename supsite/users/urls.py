@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_user, get_users, create_issue, get_issues, get_issue, register_user
+from .views import create_user, get_users, create_issue, get_issues, get_issue, register_user, get_message
 
 urlpatterns = [
     path('users/create/', create_user, name='create-user'),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('issues/', get_issues, name='get-issues'),
     path('issues/<int:issue_id>/', get_issue, name='get-issue'),
     path('api/register/', register_user, name='register'),
+    path('issues/<int:issue_id>/messages', get_message, name='get-message'),
 ]
