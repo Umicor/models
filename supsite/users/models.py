@@ -11,7 +11,7 @@ class User(models.Model):
         MinValueValidator(1),  # Минимальное допустимое значение
         MaxValueValidator(2)  # Максимальное допустимое значение
     ])
-
+    is_active = models.BooleanField(default=False)
 
 class Issue(models.Model):
     title = models.CharField(max_length=20)
@@ -25,3 +25,9 @@ class Message(models.Model):
     body = models.CharField(max_length=200)
     issue_id = models.IntegerField()
     user_id = models.IntegerField()
+
+class ActivationKey(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    key = models.CharField(max_length=20)
+    # Использование primary_key=True для создания автоинкрементируемого id
+    id = models.AutoField(primary_key=True)
