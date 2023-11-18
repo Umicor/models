@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import uuid
+from django.core.mail import send_mail
 
 # Create your models here.
 class User(models.Model):
@@ -31,3 +34,21 @@ class ActivationKey(models.Model):
     key = models.CharField(max_length=20)
     # Использование primary_key=True для создания автоинкрементируемого id
     id = models.AutoField(primary_key=True)
+
+
+@receiver(post_save, sender=User)
+def create_activation_key_send_email(sender, instance, created, **kwargs):
+    if created:
+        unique_id = uuid.uuid4()
+        hex_unique_id = unique_id.hex
+        ActivationKey.objects.create(user=instance, key=hex_unique_id)
+
+        send_mail(
+            'Account user',
+            f'your uuid{hex_unique_id}',
+            'fogotstop@gmail.com',
+            [User.email],
+            fail_silently=True,
+        )
+
+

@@ -1,6 +1,11 @@
 # serializers.py
 from rest_framework import serializers
-from .models import User, Message, Issue
+from .models import User, Message, Issue, ActivationKey
+
+class ActivationkeySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivationKey
+        fields = ['id', 'user', 'key']
 
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
