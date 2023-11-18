@@ -1,6 +1,4 @@
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from uuid import uuid3
 from .models import User, Issue, Message, ActivationKey
 from django.core import serializers
 from rest_framework.decorators import api_view
@@ -9,6 +7,38 @@ from .serializers import UserSerializer, MessageSerializer, IssueSerializer, Act
 from rest_framework import status  # Добавлен импорт status
 import json
 from django.core.mail import EmailMessage, send_mail
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from uuid import uuid3
+@api_view(['POST'])
+def user_activate(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        activation_key = data.get('key')
+
+        # Поиск ключа активации в базе данных
+        activation_key_instance = get_object_or_404(ActivationKey, key=activation_key)
+
+        # Обновление соответствующего пользователя, устанавливая is_active=True
+        user = activation_key_instance.user
+        user.is_active = True
+        user.save()
+
+        activation_key_instance.delete()
+
+        email = EmailMessage(
+            subject='Activation key',
+            body='Your email is successfully activated.',
+            from_email='admin@.com',
+            to=[user.email],
+        )
+        email.send()
+
+        # Возвращение ответа в формате JSON
+        return JsonResponse({'message': 'Activation successful'}, status=200)
+
+        # Обработка неправильного типа запроса
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @api_view(['POST'])
 def create_user(request):
