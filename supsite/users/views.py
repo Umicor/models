@@ -1,13 +1,14 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import User, Issue, Message
+from uuid import uuid3
+from .models import User, Issue, Message, ActivationKey
 from django.core import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import UserSerializer, MessageSerializer, IssueSerializer  #сериализатор пользователя
+from .serializers import UserSerializer, MessageSerializer, IssueSerializer, ActivationkeySerializer  #сериализатор пользователя
 from rest_framework import status  # Добавлен импорт status
 import json
-
+from django.core.mail import EmailMessage, send_mail
 
 @api_view(['POST'])
 def create_user(request):
@@ -16,7 +17,17 @@ def create_user(request):
             data = json.loads(request.body)
             serializer = UserSerializer(data=data)
             if serializer.is_valid():
-                serializer.save()
+                new_user = serializer.save()
+                activation_key = ActivationKey.objects.get(user=new_user)
+
+                email = EmailMessage(
+                    subject='Activation key',
+                    body=f'http://frontend.com/{activation_key.key}',
+                    from_email='admin@.com',
+                    to=[new_user.email],
+                )
+                email.send()
+
                 return JsonResponse(serializer.data, status=201)
             return JsonResponse(serializer.errors, status=400)
         except Exception as e:
