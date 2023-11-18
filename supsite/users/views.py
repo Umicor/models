@@ -10,6 +10,9 @@ from django.core.mail import EmailMessage, send_mail
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from uuid import uuid3
+from .task import send_email_task #celery
+
+
 @api_view(['POST'])
 def user_activate(request):
     if request.method == 'POST':
@@ -26,13 +29,13 @@ def user_activate(request):
 
         activation_key_instance.delete()
 
-        email = EmailMessage(
+        send_email_task.delay(
             subject='Activation key',
-            body='Your email is successfully activated.',
+            message='Your email is successfully activated.',
             from_email='admin@.com',
-            to=[user.email],
+            recipient_list=[user.email]
         )
-        email.send()
+
 
         # Возвращение ответа в формате JSON
         return JsonResponse({'message': 'Activation successful'}, status=200)
@@ -50,13 +53,13 @@ def create_user(request):
                 new_user = serializer.save()
                 activation_key = ActivationKey.objects.get(user=new_user)
 
-                email = EmailMessage(
+                send_email_task.delay(
                     subject='Activation key',
-                    body=f'http://frontend.com/{activation_key.key}',
+                    message=f'http://frontend.com/{activation_key.key}',
                     from_email='admin@.com',
-                    to=[new_user.email],
+                    recipient_list=[new_user.email]
                 )
-                email.send()
+
 
                 return JsonResponse(serializer.data, status=201)
             return JsonResponse(serializer.errors, status=400)
