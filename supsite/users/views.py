@@ -6,11 +6,9 @@ from rest_framework.response import Response
 from .serializers import UserSerializer, MessageSerializer, IssueSerializer, ActivationkeySerializer  #сериализатор пользователя
 from rest_framework import status  # Добавлен импорт status
 import json
-from django.core.mail import EmailMessage, send_mail
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-from uuid import uuid3
 from .task import send_email_task #celery
+
 
 
 @api_view(['POST'])
