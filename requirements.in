@@ -12,3 +12,4 @@ pympler~=1.0
 ruff~=0.0.291
 celery~=5.3
 redis~=5.0.1
+python-decouple~=3.8
