@@ -117,6 +117,8 @@ pympler==1.0.1
     # via -r requirements.in
 python-dateutil==2.8.2
     # via celery
+python-decouple==3.8
+    # via -r requirements.in
 pytz==2023.3.post1
     # via djangorestframework
 redis==5.0.1
